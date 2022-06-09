@@ -1,0 +1,27 @@
+pipeline {
+    agent { label 'docker-node' }
+
+    stages {
+        stage('GIT Clone') {
+            steps {
+                git changelog: false, url: 'https://github.com/paveleu/test_jenkins.git'
+            }
+        }
+        stage('Build java images') {
+            steps {
+                dir('jenkins_builds/java_core'){
+                    sh '''
+                        docker build -t hub.digpro.dev/java:11 --build-arg TZ=Europe/Warsaw --build-arg JAVA_MAJOR_VERSION=11 .
+                        docker build -t hub.digpro.dev/java:17 --build-arg TZ=Europe/Warsaw --build-arg JAVA_MAJOR_VERSION=17 .
+                        
+                        docker push hub.digpro.dev/java:11
+                        docker push hub.digpro.dev/java:17
+                        
+                        docker image remove hub.digpro.dev/java:11
+                        docker image remove hub.digpro.dev/java:17
+                    '''
+                }
+            }
+        }
+    }
+}

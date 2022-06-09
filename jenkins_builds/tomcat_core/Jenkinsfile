@@ -1,0 +1,43 @@
+pipeline {
+    agent { label 'docker-node' }
+
+    stages {
+        stage('GIT Clone') {
+            steps {
+                git changelog: false, url: 'https://github.com/paveleu/test_jenkins.git'
+            }
+        }
+        stage('Build java images') {
+            steps {
+                dir('jenkins_builds/tomcat_core'){
+                    sh '''
+                        TOMCAT_V=9
+                        
+                        JAVA_V=11
+                        docker build -t hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V --build-arg TOMCAT_VERSION=$TOMCAT_V --build-arg JAVA_VERSION=$JAVA_V .
+                        docker push hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V
+                        docker image remove hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V
+                        
+                        JAVA_V=17
+                        docker build -t hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V --build-arg TOMCAT_VERSION=$TOMCAT_V --build-arg JAVA_VERSION=$JAVA_V .
+                        docker push hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V
+                        docker image remove hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V
+                        
+
+                        TOMCAT_V=10
+                        
+                        JAVA_V=11
+                        docker build -t hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V --build-arg TOMCAT_VERSION=$TOMCAT_V --build-arg JAVA_VERSION=$JAVA_V .
+                        docker push hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V
+                        docker image remove hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V
+                        
+                        JAVA_V=17
+                        docker build -t hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V --build-arg TOMCAT_VERSION=$TOMCAT_V --build-arg JAVA_VERSION=$JAVA_V .
+                        docker push hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V
+                        docker image remove hub.digpro.dev/tomcat:$TOMCAT_V-jdk$JAVA_V
+                    '''
+                }
+            }
+        }
+    }
+}
